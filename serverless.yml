@@ -1,0 +1,67 @@
+service: ofirreactcalcserverless-yaalahkvar
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  profile: ofirServerlessAccount
+  environment:
+    DYNAMODB_TABLE: ofir-calculationsTableYaalahKvar
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: '*'
+
+functions:
+  getCalculation:
+    handler: lambdas/endpoints/getCalculation.handler
+    events:
+        - http:
+            path: get-calculation/{ID}
+            method: GET
+            cors: true
+  getCalculationDB:
+    handler: lambdas/endpoints/getCalculationDB.handler
+    events:
+        - http:
+            path: get-calculationDB/{ID}
+            method: GET
+            cors: true
+  createCalculation:
+    handler: lambdas/endpoints/createCalculation.handler
+    events:
+        - http:
+            path: create-calculation/{ID}
+            method: POST
+            cors: true
+  getAllCalculations:
+    handler: lambdas/endpoints/getAllCalculations.handler
+    events:
+        - http:
+            path: get-all-calculations
+            method: GET
+            cors: true
+  calculate:
+    handler: lambdas/endpoints/calculate.handler
+    events:
+        - http:
+            path: calculate
+            method: POST
+            cors: true
+
+  
+
+resources:
+  Resources:
+    calculationsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        AttributeDefinitions:
+          - AttributeName: ID
+            AttributeType: S
+        KeySchema:
+          - AttributeName: ID
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
